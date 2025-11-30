@@ -171,16 +171,6 @@ button:disabled {
     box-shadow: 0 5px 8px rgba(112, 161, 255, 0.4);
 }
 
-.clear-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-    color: white;
-}
-
-.clear-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 8px rgba(255, 107, 107, 0.4);
-}
-
 /* Виртуальная клавиатура */
 .virtual-keyboard {
     display: grid;
@@ -219,7 +209,10 @@ button:disabled {
 .clear-cell-btn {
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
     color: white;
-    grid-column: span 2;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .falling-numbers {
