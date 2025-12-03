@@ -23,6 +23,178 @@ document.addEventListener('DOMContentLoaded', function() {
     let conflictCheckTimeout = null;
     let currentConflicts = new Map();
     let useServer = true; // Флаг использования сервера
+    let keyboardVisible = false;
+
+    // ============ АДАПТИВНАЯ КЛАВИАТУРА ============
+
+    // Функция проверки необходимости показа клавиатуры
+    function shouldShowKeyboard() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Показываем клавиатуру если:
+        // 1. Это мобильное устройство
+        // 2. Ширина меньше 1000px
+        // 3. Высота меньше 700px
+        // 4. Соотношение сторон указывает на телефон
+        return isMobile || width <= 1000 || height <= 700 || width < height;
+    }
+
+    // Функция показа/скрытия клавиатуры
+    function updateKeyboardVisibility() {
+        const shouldShow = shouldShowKeyboard();
+        
+        if (shouldShow) {
+            virtualKeyboard.classList.add('show');
+            keyboardVisible = true;
+            
+            // На мобильных устройствах отключаем фокус на input
+            if (window.innerWidth <= 767) {
+                document.querySelectorAll('.cell-input').forEach(input => {
+                    input.readOnly = true;
+                    input.style.caretColor = 'transparent';
+                });
+            }
+            
+            console.log(`⌨️ Виртуальная клавиатура: ВКЛ (${window.innerWidth}x${window.innerHeight})`);
+        } else {
+            virtualKeyboard.classList.remove('show');
+            keyboardVisible = false;
+            
+            // Включаем фокус обратно на десктопах
+            document.querySelectorAll('.cell-input').forEach(input => {
+                input.readOnly = false;
+                input.style.caretColor = '';
+            });
+            
+            console.log(`⌨️ Виртуальная клавиатура: ВЫКЛ (${window.innerWidth}x${window.innerHeight})`);
+        }
+    }
+
+    // Создаем виртуальную клавиатуру
+    function createVirtualKeyboard() {
+        virtualKeyboard.innerHTML = '';
+        virtualKeyboard.className = 'virtual-keyboard';
+        
+        // Первый ряд: 1-5
+        const row1 = document.createElement('div');
+        row1.className = 'keyboard-row';
+        
+        for (let i = 1; i <= 5; i++) {
+            const btn = createNumberButton(i);
+            row1.appendChild(btn);
+        }
+        
+        // Второй ряд: 6-9 и удалить
+        const row2 = document.createElement('div');
+        row2.className = 'keyboard-row';
+        
+        for (let i = 6; i <= 9; i++) {
+            const btn = createNumberButton(i);
+            row2.appendChild(btn);
+        }
+        
+        // Кнопка удалить
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'number-btn clear-cell-btn';
+        clearBtn.dataset.number = '0';
+        clearBtn.textContent = '⌫';
+        clearBtn.addEventListener('click', handleVirtualKeyClick);
+        clearBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            handleVirtualKeyClick(e);
+        });
+        row2.appendChild(clearBtn);
+        
+        virtualKeyboard.appendChild(row1);
+        virtualKeyboard.appendChild(row2);
+        
+        // Добавляем обработчик touch для всех кнопок клавиатуры
+        virtualKeyboard.querySelectorAll('.number-btn').forEach(btn => {
+            btn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.9)';
+            });
+            
+            btn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.style.transform = '';
+                const clickEvent = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+                this.dispatchEvent(clickEvent);
+            });
+        });
+    }
+
+    function createNumberButton(number) {
+        const btn = document.createElement('button');
+        btn.className = 'number-btn';
+        btn.dataset.number = number;
+        btn.textContent = number;
+        btn.addEventListener('click', handleVirtualKeyClick);
+        btn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+        });
+        return btn;
+    }
+
+    // Обработчик виртуальной клавиатуры
+    function handleVirtualKeyClick(e) {
+        if (isSolving || isClearing) return;
+        
+        e.preventDefault();
+        const btn = e.currentTarget;
+        const number = btn.dataset.number;
+        
+        // Анимация нажатия
+        btn.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            btn.style.transform = '';
+        }, 150);
+        
+        if (activeCell) {
+            const input = activeCell.querySelector('.cell-input');
+            const cellIndex = parseInt(activeCell.dataset.index);
+            
+            if (number === '0') {
+                // Очистка
+                const oldValue = input.value;
+                input.value = '';
+                activeCell.classList.remove('user-input', 'solved');
+                
+                // Если было значение, обновляем конфликты
+                if (oldValue !== '') {
+                    setTimeout(async () => {
+                        await updateConflicts(cellIndex);
+                    }, 50);
+                }
+            } else {
+                // Ввод цифры
+                const oldValue = input.value;
+                input.value = number;
+                activeCell.classList.add('user-input');
+                activeCell.classList.remove('solved');
+                
+                // Если значение изменилось, обновляем конфликты
+                if (oldValue !== number) {
+                    setTimeout(async () => {
+                        await updateConflicts(cellIndex);
+                    }, 50);
+                }
+            }
+            
+            // Фокус обратно только на десктопах
+            if (window.innerWidth > 767 && !keyboardVisible) {
+                input.focus();
+            }
+        }
+    }
+
+    // ============ ОСНОВНЫЕ ФУНКЦИИ ============
 
     // Проверка доступности сервера
     async function checkServerAvailability() {
@@ -156,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('touchstart', function(e) {
                 if (window.innerWidth <= 767) {
                     e.preventDefault();
+                    handleCellClick(cell);
                 }
             });
             
@@ -176,9 +349,9 @@ document.addEventListener('DOMContentLoaded', function() {
         cell.classList.add('active');
         activeCell = cell;
         
-        // Фокусируем input
-        const input = cell.querySelector('.cell-input');
-        if (window.innerWidth > 767) {
+        // На мобильных с клавиатурой не фокусируемся на input
+        if (window.innerWidth > 767 || !keyboardVisible) {
+            const input = cell.querySelector('.cell-input');
             input.focus();
         }
     }
@@ -523,6 +696,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработчик клавиш
     function handleCellKeydown(input, e) {
+        // На мобильных с видимой клавиатурой игнорируем стандартные клавиши
+        if (keyboardVisible && window.innerWidth <= 767) {
+            e.preventDefault();
+            return;
+        }
+        
         const cell = input.parentElement;
         const index = parseInt(cell.dataset.index);
         
@@ -541,21 +720,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 0);
         }
         
-        // Навигация стрелками
-        if (e.key.startsWith('Arrow')) {
+        // Навигация стрелками (только на десктопах)
+        if (!keyboardVisible && e.key.startsWith('Arrow')) {
             e.preventDefault();
             navigateGrid(e.key, index);
         }
         
-        // Ввод цифр
-        if (/^[1-9]$/.test(e.key)) {
+        // Ввод цифр (только на десктопах без клавиатуры)
+        if (!keyboardVisible && /^[1-9]$/.test(e.key)) {
             e.preventDefault();
             const oldValue = input.value;
             input.value = e.key;
             cell.classList.add('user-input');
             cell.classList.remove('solved');
             
-            // Если было другое значение, обновляем конфликты
+            // Если значение изменилось, обновляем конфликты
             setTimeout(async () => {
                 await updateConflicts(index);
             }, 50);
@@ -600,101 +779,6 @@ document.addEventListener('DOMContentLoaded', function() {
             handleCellClick(newCell);
             
             const input = newCell.querySelector('.cell-input');
-            if (window.innerWidth > 767) {
-                input.focus();
-            }
-        }
-    }
-
-    // Создаем виртуальную клавиатуру
-    function createVirtualKeyboard() {
-        virtualKeyboard.innerHTML = '';
-        
-        // Первый ряд: 1-5
-        const row1 = document.createElement('div');
-        row1.className = 'keyboard-row';
-        
-        for (let i = 1; i <= 5; i++) {
-            const btn = createNumberButton(i);
-            row1.appendChild(btn);
-        }
-        
-        // Второй ряд: 6-9 и удалить
-        const row2 = document.createElement('div');
-        row2.className = 'keyboard-row';
-        
-        for (let i = 6; i <= 9; i++) {
-            const btn = createNumberButton(i);
-            row2.appendChild(btn);
-        }
-        
-        // Кнопка удалить
-        const clearBtn = document.createElement('button');
-        clearBtn.className = 'number-btn clear-cell-btn';
-        clearBtn.dataset.number = '0';
-        clearBtn.textContent = '⌫';
-        clearBtn.addEventListener('click', handleVirtualKeyClick);
-        row2.appendChild(clearBtn);
-        
-        virtualKeyboard.appendChild(row1);
-        virtualKeyboard.appendChild(row2);
-    }
-
-    function createNumberButton(number) {
-        const btn = document.createElement('button');
-        btn.className = 'number-btn';
-        btn.dataset.number = number;
-        btn.textContent = number;
-        btn.addEventListener('click', handleVirtualKeyClick);
-        return btn;
-    }
-
-    // Обработчик виртуальной клавиатуры
-    function handleVirtualKeyClick(e) {
-        if (isSolving || isClearing) return;
-        
-        e.preventDefault();
-        const btn = e.currentTarget;
-        const number = btn.dataset.number;
-        
-        // Анимация нажатия
-        btn.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-            btn.style.transform = '';
-        }, 150);
-        
-        if (activeCell) {
-            const input = activeCell.querySelector('.cell-input');
-            const cellIndex = parseInt(activeCell.dataset.index);
-            
-            if (number === '0') {
-                // Очистка
-                const oldValue = input.value;
-                input.value = '';
-                activeCell.classList.remove('user-input', 'solved');
-                
-                // Если было значение, обновляем конфликты
-                if (oldValue !== '') {
-                    setTimeout(async () => {
-                        await updateConflicts(cellIndex);
-                    }, 50);
-                }
-            } else {
-                // Ввод цифры
-                const oldValue = input.value;
-                input.value = number;
-                activeCell.classList.add('user-input');
-                activeCell.classList.remove('solved');
-                
-                // Если значение изменилось, обновляем конфликты
-                if (oldValue !== number) {
-                    setTimeout(async () => {
-                        await updateConflicts(cellIndex);
-                    }, 50);
-                }
-            }
-            
-            // Фокус обратно
             if (window.innerWidth > 767) {
                 input.focus();
             }
@@ -1019,10 +1103,20 @@ document.addEventListener('DOMContentLoaded', function() {
         createVirtualKeyboard();
         initTheme();
         
+        // Проверяем и обновляем видимость клавиатуры
+        updateKeyboardVisibility();
+        
+        // Слушаем изменения размера окна
+        window.addEventListener('resize', updateKeyboardVisibility);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(updateKeyboardVisibility, 100);
+        });
+        
         // Проверяем доступность сервера
         console.log('🚀 Инициализация SUDO.RESH...');
-        console.log(`🌐 Фронтенд: ${window.location.origin}`);
-        console.log(`🔗 Бэкенд: ${SERVER_URL}`);
+        console.log(`📱 Устройство: ${navigator.userAgent}`);
+        console.log(`📏 Размер экрана: ${window.innerWidth}x${window.innerHeight}`);
+        console.log(`⌨️ Клавиатура: ${keyboardVisible ? 'видима' : 'скрыта'}`);
         
         await checkServerAvailability();
         
@@ -1035,6 +1129,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('✅ SUDO.RESH инициализирован');
         console.log(`🔧 Режим: ${useServer ? 'Серверный' : 'Клиентский'}`);
+        console.log(`⌨️ Виртуальная клавиатура: ${keyboardVisible ? 'ВКЛ' : 'ВЫКЛ'}`);
     }
 
     init();
@@ -1064,6 +1159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleTheme,
         checkServerAvailability,
         currentTheme: () => currentTheme,
-        usingServer: () => useServer
+        usingServer: () => useServer,
+        keyboardVisible: () => keyboardVisible
     };
 });
