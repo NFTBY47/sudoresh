@@ -90,7 +90,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 10px;
     min-height: 100vh;
     padding: 10px 0;
 }
@@ -138,7 +138,7 @@ body {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     padding-top: 60px;
 }
 
@@ -167,7 +167,7 @@ body {
 .sudoku-platform {
     background: var(--card-bg);
     border-radius: 16px;
-    padding: 15px;
+    padding: 12px;
     display: inline-block;
     box-shadow: 
         0 10px 30px var(--shadow-color),
@@ -176,7 +176,7 @@ body {
     transition: all 0.3s ease;
     width: fit-content;
     max-width: 100%;
-    margin: 5px 0;
+    margin: 3px 0;
 }
 
 .sudoku-grid {
@@ -333,31 +333,31 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     justify-content: center;
     width: 100%;
     max-width: 450px;
-    margin: 5px 0;
+    margin: 3px 0;
 }
 
 .buttons-row {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     justify-content: center;
     width: 100%;
 }
 
 /* Кнопки "Решить" и "Очистить" */
 .solve-btn, .clear-btn {
-    padding: 14px 30px;
-    font-size: 1rem;
+    padding: 12px 25px;
+    font-size: 0.95rem;
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
-    min-width: 160px;
-    max-width: 200px;
+    min-width: 150px;
+    max-width: 180px;
     position: relative;
     overflow: hidden;
     letter-spacing: 0.5px;
@@ -404,25 +404,23 @@ button:disabled {
 
 /* ================== ВИРТУАЛЬНАЯ КЛАВИАТУРА ================== */
 
-/* Виртуальная клавиатура - УПРАВЛЯЕТСЯ JS */
+/* Виртуальная клавиатура - КОМПАКТНАЯ И ПРОСТАЯ */
 .virtual-keyboard {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     width: 100%;
-    max-width: 400px;
-    margin: 10px 0;
-    padding: 15px;
-    background: var(--card-bg);
-    border-radius: 16px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 12px var(--shadow-color);
+    max-width: 350px;
+    margin: 2px 0 8px 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease;
+    transform: translateY(8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     pointer-events: none;
     max-height: 0;
-    padding: 0 15px;
     overflow: hidden;
 }
 
@@ -430,14 +428,13 @@ button:disabled {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
-    max-height: 500px;
-    padding: 15px;
+    max-height: 140px;
 }
 
 .keyboard-row {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 6px;
     width: 100%;
 }
 
@@ -445,37 +442,38 @@ button:disabled {
     background: linear-gradient(135deg, var(--accent-color) 0%, #5352ed 100%);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-size: 1.4rem;
+    border-radius: 5px;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 8px var(--shadow-color);
-    min-height: 55px;
-    min-width: 55px;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    min-height: 38px;
+    min-width: 38px;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    padding: 0;
 }
 
 .number-btn:hover {
     background: linear-gradient(135deg, var(--accent-hover) 0%, #6362fd 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .number-btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px var(--shadow-color);
+    box-shadow: 0 1px 3px var(--shadow-color);
 }
 
 .clear-cell-btn {
     background: linear-gradient(135deg, var(--danger-color) 0%, #e53e3e 100%);
     color: white;
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -487,13 +485,13 @@ button:disabled {
 
 /* Подпись */
 .signature {
-    margin-top: 10px;
-    font-size: 0.7rem;
+    margin-top: 8px;
+    font-size: 0.65rem;
     color: var(--text-secondary);
     font-weight: 300;
     letter-spacing: 0.5px;
     text-align: center;
-    padding: 8px;
+    padding: 5px;
     opacity: 0.7;
 }
 
@@ -522,22 +520,22 @@ button:disabled {
     left: 50%;
     transform: translate(-50%, -50%);
     background: var(--modal-bg);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 0;
     box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 20px 40px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border-color);
-    min-width: 350px;
+    min-width: 320px;
     max-width: 90vw;
     overflow: hidden;
-    animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: modalSlideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes modalSlideIn {
     from {
         opacity: 0;
-        transform: translate(-50%, -60%) scale(0.9);
+        transform: translate(-50%, -55%) scale(0.95);
     }
     to {
         opacity: 1;
@@ -547,20 +545,20 @@ button:disabled {
 
 .modal-header {
     background: linear-gradient(135deg, var(--accent-color) 0%, #5352ed 100%);
-    padding: 20px 25px 15px 25px;
+    padding: 18px 22px 12px 22px;
     text-align: center;
 }
 
 .modal-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: white;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 
 .modal-body {
-    padding: 30px 25px;
-    font-size: 1.1rem;
+    padding: 25px 22px;
+    font-size: 1rem;
     color: var(--text-color);
     font-weight: 600;
     text-align: center;
@@ -568,7 +566,7 @@ button:disabled {
 }
 
 .modal-footer {
-    padding: 20px 25px 25px 25px;
+    padding: 18px 22px 22px 22px;
     text-align: center;
     border-top: 1px solid var(--border-color);
 }
@@ -577,14 +575,14 @@ button:disabled {
     background: var(--button-gradient);
     color: white;
     border: none;
-    border-radius: 12px;
-    padding: 12px 30px;
-    font-size: 1rem;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(112, 161, 255, 0.3);
-    min-width: 130px;
+    min-width: 120px;
 }
 
 .ok-btn:hover {
@@ -597,7 +595,7 @@ button:disabled {
 /* Очень маленькие экраны (до 480px) - телефоны */
 @media (max-width: 480px) {
     .container {
-        gap: 10px;
+        gap: 8px;
         padding: 5px;
         justify-content: flex-start;
         padding-top: 10px;
@@ -606,17 +604,17 @@ button:disabled {
     }
     
     .header {
-        margin-bottom: 5px;
+        margin-bottom: 3px;
         padding-top: 50px;
     }
     
     .title {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
         margin-bottom: 0;
     }
     
     .subtitle {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
     }
     
     .theme-toggle {
@@ -628,25 +626,25 @@ button:disabled {
     }
     
     .sudoku-platform {
-        padding: 10px;
+        padding: 8px;
         width: 95vw;
-        margin: 5px 0;
+        margin: 2px 0;
     }
     
     .sudoku-grid {
         width: 90vw;
         height: 90vw;
-        max-width: 320px;
-        max-height: 320px;
+        max-width: 300px;
+        max-height: 300px;
     }
     
     .sudoku-cell {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
     
     .controls {
-        gap: 10px;
-        margin: 5px 0;
+        gap: 8px;
+        margin: 2px 0;
     }
     
     .buttons-row {
@@ -657,29 +655,39 @@ button:disabled {
     }
     
     .solve-btn, .clear-btn {
-        min-width: 140px;
-        max-width: 150px;
-        padding: 12px 15px;
-        font-size: 0.9rem;
+        min-width: 130px;
+        max-width: 140px;
+        padding: 10px 12px;
+        font-size: 0.85rem;
         flex: 1;
     }
     
-    /* Кнопки виртуальной клавиатуры на маленьких экранах */
+    /* Виртуальная клавиатура на маленьких экранах */
+    .virtual-keyboard {
+        max-width: 90vw;
+        margin: 1px 0 6px 0;
+        gap: 5px;
+    }
+    
     .keyboard-row {
-        gap: 8px;
+        gap: 5px;
     }
     
     .number-btn {
-        min-height: 50px;
-        min-width: 50px;
-        font-size: 1.3rem;
-        border-radius: 10px;
+        min-height: 42px;
+        min-width: 42px;
+        font-size: 1.2rem;
+        border-radius: 4px;
+    }
+    
+    .clear-cell-btn {
+        font-size: 1.4rem;
     }
     
     .signature {
-        margin-top: 8px;
+        margin-top: 6px;
         font-size: 0.6rem;
-        padding: 5px;
+        padding: 4px;
     }
     
     .modal-content {
@@ -688,51 +696,66 @@ button:disabled {
     }
     
     .modal-header {
-        padding: 15px 20px 10px 20px;
+        padding: 15px 18px 10px 18px;
     }
     
     .modal-body {
         padding: 20px 15px;
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
     
     .modal-footer {
-        padding: 15px 20px 20px 20px;
+        padding: 15px 18px 18px 18px;
+    }
+    
+    .ok-btn {
+        padding: 9px 20px;
+        font-size: 0.9rem;
+        min-width: 110px;
     }
 }
 
 /* Маленькие экраны (481px - 767px) - планшеты/большие телефоны */
 @media (min-width: 481px) and (max-width: 767px) {
     .container {
-        gap: 15px;
+        gap: 10px;
         min-height: 100vh;
         height: auto;
         justify-content: flex-start;
-        padding-top: 20px;
+        padding-top: 15px;
     }
     
     .sudoku-grid {
         width: 80vw;
         height: 80vw;
-        max-width: 400px;
-        max-height: 400px;
+        max-width: 380px;
+        max-height: 380px;
     }
     
     .sudoku-cell {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
     
     .solve-btn, .clear-btn {
-        min-width: 160px;
-        max-width: 180px;
-        padding: 12px 20px;
+        min-width: 140px;
+        max-width: 160px;
+        padding: 11px 18px;
     }
     
-    /* Кнопки виртуальной клавиатуры на планшетах */
+    /* Виртуальная клавиатура на планшетах */
+    .virtual-keyboard {
+        max-width: 380px;
+        margin: 2px 0 8px 0;
+    }
+    
     .number-btn {
-        min-height: 55px;
-        min-width: 55px;
-        font-size: 1.4rem;
+        min-height: 45px;
+        min-width: 45px;
+        font-size: 1.3rem;
+    }
+    
+    .clear-cell-btn {
+        font-size: 1.5rem;
     }
 }
 
@@ -742,7 +765,7 @@ button:disabled {
         min-height: 100vh;
         height: auto;
         justify-content: flex-start;
-        padding-top: 30px;
+        padding-top: 20px;
     }
     
     .sudoku-grid {
@@ -751,9 +774,13 @@ button:disabled {
     }
     
     .solve-btn, .clear-btn {
-        min-width: 150px;
-        max-width: 170px;
-        padding: 14px 25px;
+        min-width: 140px;
+        max-width: 160px;
+        padding: 12px 22px;
+    }
+    
+    .virtual-keyboard {
+        max-width: 400px;
     }
 }
 
@@ -767,14 +794,48 @@ button:disabled {
     .sudoku-cell {
         font-size: 1.6rem;
     }
+    
+    .virtual-keyboard {
+        max-width: 350px;
+    }
+}
+
+/* Десктопы широкие (1200px и выше) */
+@media (min-width: 1200px) {
+    .virtual-keyboard {
+        max-width: 320px;
+    }
+    
+    .number-btn {
+        min-height: 36px;
+        min-width: 36px;
+        font-size: 1rem;
+    }
+    
+    .clear-cell-btn {
+        font-size: 1.2rem;
+    }
+}
+
+/* Очень большие экраны (более 1400px) */
+@media (min-width: 1400px) {
+    .virtual-keyboard {
+        max-width: 300px;
+    }
+    
+    .number-btn {
+        min-height: 34px;
+        min-width: 34px;
+        font-size: 0.95rem;
+    }
 }
 
 /* Маленькая высота (все устройства) */
 @media (max-height: 700px) {
     .container {
         justify-content: flex-start;
-        padding-top: 10px;
-        gap: 10px;
+        padding-top: 8px;
+        gap: 8px;
         min-height: 100vh;
         height: auto;
     }
@@ -782,29 +843,39 @@ button:disabled {
     .sudoku-grid {
         width: 70vw;
         height: 70vw;
-        max-width: 350px;
-        max-height: 350px;
+        max-width: 320px;
+        max-height: 320px;
     }
     
     .sudoku-cell {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
     
     .buttons-row {
         flex-direction: row;
-        gap: 15px;
+        gap: 12px;
     }
     
     .solve-btn, .clear-btn {
-        min-width: 140px;
-        max-width: 160px;
-        padding: 10px 15px;
-        font-size: 0.9rem;
+        min-width: 130px;
+        max-width: 150px;
+        padding: 9px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .virtual-keyboard {
+        margin: 1px 0 6px 0;
+        max-width: 300px;
     }
     
     .number-btn {
-        min-height: 45px;
-        min-width: 45px;
+        min-height: 32px;
+        min-width: 32px;
+        font-size: 1rem;
+        border-radius: 4px;
+    }
+    
+    .clear-cell-btn {
         font-size: 1.2rem;
     }
 }
@@ -838,26 +909,63 @@ button:disabled {
     .container {
         justify-content: flex-start;
         padding-top: 5px;
-        gap: 8px;
+        gap: 6px;
     }
     
     .sudoku-grid {
         width: 85vw;
         height: 85vw;
-        max-width: 280px;
-        max-height: 280px;
+        max-width: 260px;
+        max-height: 260px;
     }
     
     .number-btn {
-        min-height: 45px;
-        min-width: 45px;
-        font-size: 1.2rem;
+        min-height: 32px;
+        min-width: 32px;
+        font-size: 0.95rem;
+    }
+    
+    .clear-cell-btn {
+        font-size: 1.1rem;
     }
     
     .solve-btn, .clear-btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        min-width: 130px;
+        padding: 7px 10px;
+        font-size: 0.8rem;
+        min-width: 120px;
+    }
+}
+
+/* Узкие экраны (до 1000px) */
+@media (max-width: 1000px) {
+    .virtual-keyboard {
+        max-width: 90vw;
+    }
+}
+
+/* Экстремально узкие экраны (до 350px) */
+@media (max-width: 350px) {
+    .virtual-keyboard {
+        max-width: 95vw;
+        gap: 4px;
+    }
+    
+    .keyboard-row {
+        gap: 4px;
+    }
+    
+    .number-btn {
+        min-height: 36px;
+        min-width: 36px;
+        font-size: 1rem;
+        border-radius: 3px;
+    }
+    
+    .solve-btn, .clear-btn {
+        min-width: 110px;
+        max-width: 120px;
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
 }
 
