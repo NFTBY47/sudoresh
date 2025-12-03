@@ -1,4 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+:root {
+    /* Темная тема по умолчанию */
+    --bg-color: #0a0a0a;
+    --card-bg: linear-gradient(135deg, #1a1a1a 0%, #151515 100%);
+    --text-color: #ffffff;
+    --text-secondary: #aaaaaa;
+    --accent-color: #70a1ff;
+    --accent-hover: #8eb3ff;
+    --danger-color: #ff6b6b;
+    --danger-hover: #ff8585;
+    --border-color: #333333;
+    --cell-bg: #ffffff;
+    --cell-text: #000000; /* ЧЕРНЫЙ текст на темной теме */
+    --cell-active-bg: #f0f8ff;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --theme-toggle-bg: #2a2a2a;
+    --theme-toggle-border: #444;
+    --modal-bg: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
+    --button-gradient: linear-gradient(135deg, #70a1ff 0%, #5352ed 100%);
+    --clear-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    --title-color: #ffffff;
+    --solved-color: #000000; /* ЧЕРНЫЙ для решенных клеток на темной теме */
+    /* Ярко-красные переменные для конфликтов */
+    --conflict-color: #ff0000; /* ЯРКО-КРАСНЫЙ текст */
+    --conflict-bg: #ff000020; /* Полупрозрачный красный фон */
+    --conflict-border: #ff0000; /* ЯРКО-КРАСНАЯ граница */
+}
+
+[data-theme="light"] {
+    --bg-color: #f5f7fa;
+    --card-bg: linear-gradient(135deg, #ffffff 0%, #f0f4f8 100%);
+    --text-color: #1a1a1a;
+    --text-secondary: #666666;
+    --accent-color: #4a6fff;
+    --accent-hover: #5d7eff;
+    --danger-color: #ff4757;
+    --danger-hover: #ff5e6c;
+    --border-color: #dddddd;
+    --cell-bg: #ffffff;
+    --cell-text: #000000; /* Черный текст на светлой теме */
+    --cell-active-bg: #e6f0ff;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --theme-toggle-bg: #ffffff;
+    --theme-toggle-border: #ddd;
+    --modal-bg: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    --button-gradient: linear-gradient(135deg, #4a6fff 0%, #3a5fdf 100%);
+    --clear-gradient: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+    --title-color: #000000;
+    --solved-color: #000000; /* Черный для решенных клеток на светлой теме */
+    /* Ярко-красные переменные для конфликтов в светлой теме */
+    --conflict-color: #ff0000; /* ЯРКО-КРАСНЫЙ */
+    --conflict-bg: #ff000015; /* Более светлый красный фон */
+    --conflict-border: #ff0000; /* ЯРКО-КРАСНАЯ граница */
+}
 
 * {
     margin: 0;
@@ -10,11 +63,12 @@
 html, body {
     height: 100%;
     overflow: hidden;
+    transition: background-color 0.3s ease;
 }
 
 body {
-    background-color: #000;
-    color: white;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -23,6 +77,7 @@ body {
     padding: 10px;
     overflow: hidden;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 .container {
@@ -35,39 +90,91 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
     height: 100vh;
     max-height: 100vh;
 }
 
+/* Кнопка темы в правом верхнем углу */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: var(--theme-toggle-bg);
+    border-radius: 12px;
+    border: 2px solid var(--theme-toggle-border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.05);
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+.theme-toggle::before {
+    content: '🌙';
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .theme-toggle::before {
+    content: '☀️';
+}
+
+/* Заголовок */
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.title-container {
+    text-align: center;
+    width: 100%;
+}
+
 .title {
-    font-size: clamp(1.8rem, 7vw, 3rem);
-    font-weight: 700;
-    color: white;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    font-weight: 800;
+    color: var(--title-color);
+    margin-bottom: 2px;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .subtitle {
-    font-size: clamp(0.8rem, 2.5vw, 1rem);
-    color: #aaa;
-    margin-bottom: 10px;
-    font-weight: 300;
-    text-align: center;
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    color: var(--text-secondary);
+    font-weight: 400;
+    letter-spacing: 0.5px;
 }
 
+/* Поле судоку */
 .sudoku-platform {
-    background: linear-gradient(135deg, #444 0%, #333 100%);
-    border-radius: 12px;
-    padding: clamp(10px, 2vw, 15px);
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
     display: inline-block;
-    margin-bottom: 10px;
     box-shadow: 
-        0 8px 20px rgba(0, 0, 0, 0.7),
+        0 10px 30px var(--shadow-color),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    width: fit-content;
     max-width: 100%;
-    overflow: hidden;
 }
 
 .sudoku-grid {
@@ -75,164 +182,278 @@ body {
     grid-template-columns: repeat(9, 1fr);
     grid-template-rows: repeat(9, 1fr);
     gap: 0;
-    border: 2px solid #222;
-    background-color: #222;
-    border-radius: 4px;
+    border: 2px solid var(--border-color);
+    background-color: var(--border-color);
+    border-radius: 8px;
     overflow: hidden;
-    max-width: 100%;
+    width: 450px;
+    height: 450px;
+    max-width: 90vw;
+    max-height: 90vw;
 }
 
+/* КЛЕТКИ СУДОКУ - ПРОСТЫЕ */
 .sudoku-cell {
-    width: clamp(28px, 7vw, 45px);
-    height: clamp(28px, 7vw, 45px);
-    border: 1px solid #444;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: clamp(0.9rem, 3vw, 1.3rem);
-    font-weight: 500;
-    color: #000;
-    background-color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--cell-text);
+    background-color: var(--cell-bg);
     transition: all 0.2s ease;
     text-align: center;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
+    font-feature-settings: "tnum";
+    position: relative; /* Для псевдоэлементов */
 }
 
 .sudoku-cell:focus {
     outline: none;
-    background-color: #dcdcdc;
+    background-color: var(--cell-active-bg);
 }
 
+/* Активная клетка */
 .sudoku-cell.active {
-    background-color: #e6f7ff;
-    box-shadow: inset 0 0 0 2px #70a1ff;
+    background-color: var(--cell-active-bg);
+    box-shadow: inset 0 0 0 2px var(--accent-color);
+    z-index: 1;
 }
 
-.sudoku-cell:nth-child(3n) { border-right: 2px solid #222; }
-.sudoku-cell:nth-child(9n) { border-right: 1px solid #444; }
+/* Пульсация для активной клетки */
+.sudoku-cell.active {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: inset 0 0 0 2px var(--accent-color), 0 0 0 0 rgba(112, 161, 255, 0.4);
+    }
+    70% {
+        box-shadow: inset 0 0 0 2px var(--accent-color), 0 0 0 10px rgba(112, 161, 255, 0);
+    }
+    100% {
+        box-shadow: inset 0 0 0 2px var(--accent-color), 0 0 0 0 rgba(112, 161, 255, 0);
+    }
+}
+
+/* Клетка с конфликтом - ЯРКАЯ ПОСТОЯННАЯ ПОДСВЕТКА */
+.sudoku-cell.conflict {
+    background-color: var(--conflict-bg) !important;
+    border-color: var(--conflict-border) !important;
+    color: var(--conflict-color) !important;
+    font-weight: 700;
+    z-index: 2;
+    position: relative;
+}
+
+/* Границы для конфликтных клеток в блоках 3x3 */
+.sudoku-cell.conflict:nth-child(3n) { 
+    border-right: 2px solid var(--conflict-border) !important; 
+}
+.sudoku-cell.conflict:nth-child(9n) { 
+    border-right: 1px solid var(--conflict-border) !important; 
+}
+.sudoku-cell.conflict:nth-child(n+19):nth-child(-n+27),
+.sudoku-cell.conflict:nth-child(n+46):nth-child(-n+54) { 
+    border-bottom: 2px solid var(--conflict-border) !important; 
+}
+
+/* Активная клетка с конфликтом - комбинированный стиль */
+.sudoku-cell.active.conflict {
+    background-color: color-mix(in srgb, var(--conflict-bg) 70%, var(--cell-active-bg) 30%) !important;
+    box-shadow: inset 0 0 0 2px var(--conflict-border), 0 0 0 0 rgba(255, 0, 0, 0.4) !important;
+    animation: pulseConflict 2s infinite;
+}
+
+@keyframes pulseConflict {
+    0% {
+        box-shadow: inset 0 0 0 2px var(--conflict-border), 0 0 0 0 rgba(255, 0, 0, 0.4);
+    }
+    70% {
+        box-shadow: inset 0 0 0 2px var(--conflict-border), 0 0 0 10px rgba(255, 0, 0, 0);
+    }
+    100% {
+        box-shadow: inset 0 0 0 2px var(--conflict-border), 0 0 0 0 rgba(255, 0, 0, 0);
+    }
+}
+
+/* Границы для блоков 3x3 */
+.sudoku-cell:nth-child(3n) { border-right: 2px solid var(--border-color); }
+.sudoku-cell:nth-child(9n) { border-right: 1px solid var(--border-color); }
 .sudoku-cell:nth-child(n+19):nth-child(-n+27),
-.sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid #222; }
+.sudoku-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--border-color); }
 
-.sudoku-cell.user-input { color: #70a1ff; font-weight: 600; }
-.sudoku-cell.solved { color: #ff6b6b; animation: fadeIn 0.5s ease; }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+.sudoku-cell.user-input { 
+    color: var(--accent-color); 
+    font-weight: 700;
 }
 
+/* ПРОСТАЯ АНИМАЦИЯ ПОЯВЛЕНИЯ ЦИФР */
+.sudoku-cell.solved { 
+    color: var(--solved-color);
+    font-weight: 700;
+    animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+    0% { 
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Стили для input */
+.cell-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: inherit;
+    font-weight: inherit;
+    text-align: center;
+    color: inherit;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+    padding: 0;
+}
+
+/* Управление - кнопки */
 .controls {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 20px;
     justify-content: center;
     width: 100%;
-    max-width: 350px;
+    max-width: 450px;
 }
 
 .buttons-row {
     display: flex;
-    gap: clamp(12px, 3vw, 20px);
+    gap: 20px;
     justify-content: center;
     width: 100%;
 }
 
-button {
-    padding: clamp(10px, 2.5vw, 12px) clamp(15px, 4vw, 25px);
-    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+/* Кнопки "Решить" и "Очистить" */
+.solve-btn, .clear-btn {
+    padding: 14px 30px;
+    font-size: 1rem;
     border: none;
-    border-radius: 40px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
-    box-shadow: 0 3px 5px rgba(0,0,0,0.3);
-    min-width: 110px;
-    flex: 1;
-    max-width: 140px;
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
+    min-width: 160px;
+    max-width: 200px;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .solve-btn {
-    background: linear-gradient(135deg, #70a1ff 0%, #5352ed 100%);
+    background: var(--button-gradient);
     color: white;
 }
 
 .solve-btn:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 5px 8px rgba(112, 161, 255, 0.4);
+    box-shadow: 0 6px 15px rgba(112, 161, 255, 0.4);
+}
+
+.solve-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(112, 161, 255, 0.3);
 }
 
 .clear-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    background: var(--clear-gradient);
     color: white;
 }
 
 .clear-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 8px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.4);
+}
+
+.clear-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 2px 6px var(--shadow-color);
 }
 
 /* Виртуальная клавиатура */
 .virtual-keyboard {
-    display: flex;
+    display: none;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
-    max-width: 300px;
-    margin-top: 5px;
+    max-width: 320px;
+    margin-top: 10px;
 }
 
 .keyboard-row {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: 10px;
     width: 100%;
 }
 
 .number-btn {
-    background: linear-gradient(135deg, #555 0%, #444 100%);
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 12px 5px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-width: auto;
-    flex: none;
-    max-width: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px var(--shadow-color);
+    min-height: 45px;
+    min-width: 45px;
+}
+
+.number-btn:hover {
+    background: linear-gradient(135deg, #5a6578 0%, #3d4758 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px var(--shadow-color);
+}
+
+.number-btn:active {
+    transform: translateY(0);
+}
+
+.clear-cell-btn {
+    background: linear-gradient(135deg, var(--danger-color) 0%, #e53e3e 100%);
+    color: white;
+    font-size: 1.4rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.number-btn:hover {
-    background: linear-gradient(135deg, #666 0%, #555 100%);
-    transform: translateY(-1px);
-}
-
-.number-btn:active {
-    transform: translateY(1px);
-}
-
-.clear-cell-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-    color: white;
-    font-size: 1.3rem;
-}
-
+/* Падающие цифры */
 .falling-numbers {
     position: absolute;
     top: 0;
@@ -246,29 +467,46 @@ button:disabled {
 
 .falling-number {
     position: absolute;
-    color: rgba(255, 255, 255, 0.15);
-    font-size: 18px;
+    color: var(--accent-color);
+    font-size: 16px;
     font-weight: bold;
     animation: fall linear infinite;
     user-select: none;
+    opacity: 0;
+    text-shadow: 0 0 10px currentColor;
+    filter: blur(0.5px);
 }
 
 @keyframes fall {
-    to { transform: translateY(100vh); }
+    0% {
+        transform: translateY(-50px) rotate(0deg) scale(0.8);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.2;
+    }
+    90% {
+        opacity: 0.2;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) scale(1);
+        opacity: 0;
+    }
 }
 
 /* Подпись */
 .signature {
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--text-secondary);
     font-weight: 300;
     letter-spacing: 0.5px;
     text-align: center;
     padding: 8px;
+    opacity: 0.7;
 }
 
-/* Модальное окно */
+/* Модальное окно ТОЛЬКО ДЛЯ ОШИБОК */
 .modal {
     display: none;
     position: fixed;
@@ -276,9 +514,10 @@ button:disabled {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(0, 0, 0, 0.8);
     z-index: 1000;
     animation: modalFadeIn 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
 @keyframes modalFadeIn {
@@ -291,182 +530,310 @@ button:disabled {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-    border-radius: 12px;
+    background: var(--modal-bg);
+    border-radius: 20px;
     padding: 0;
     box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.8),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-    border: 1px solid #444;
-    min-width: 380px;
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    min-width: 350px;
     max-width: 90vw;
     overflow: hidden;
+    animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #333 0%, #2a2a2a 100%);
-    padding: 25px 25px 20px 25px;
-    border-bottom: 1px solid #444;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #5352ed 100%);
+    padding: 20px 25px 15px 25px;
     text-align: center;
 }
 
 .modal-title {
-    font-size: 1.2rem;
-    color: #ff6b6b;
+    font-size: 1.3rem;
+    color: white;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 
 .modal-body {
     padding: 30px 25px;
-    font-size: 1.2rem;
-    color: white;
+    font-size: 1.1rem;
+    color: var(--text-color);
     font-weight: 600;
     text-align: center;
-    background: linear-gradient(135deg, #2a2a2a 0%, #222 100%);
+    background: transparent;
 }
 
 .modal-footer {
     padding: 20px 25px 25px 25px;
-    background: linear-gradient(135deg, #2a2a2a 0%, #222 100%);
-    border-top: 1px solid #444;
     text-align: center;
+    border-top: 1px solid var(--border-color);
 }
 
 .ok-btn {
-    background: linear-gradient(135deg, #70a1ff 0%, #5352ed 100%);
+    background: var(--button-gradient);
     color: white;
     border: none;
-    border-radius: 40px;
+    border-radius: 12px;
     padding: 12px 30px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 3px 8px rgba(112, 161, 255, 0.3);
-    min-width: 120px;
+    box-shadow: 0 4px 12px rgba(112, 161, 255, 0.3);
+    min-width: 130px;
 }
 
 .ok-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(112, 161, 255, 0.4);
+    box-shadow: 0 6px 16px rgba(112, 161, 255, 0.4);
 }
 
-/* Адаптивность для очень маленьких экранов */
-@media (max-width: 380px) {
-    .sudoku-cell {
-        width: 26px;
-        height: 26px;
-        font-size: 0.85rem;
-    }
-    
-    button {
-        min-width: 100px;
-        padding: 8px 12px;
-        font-size: 0.75rem;
-    }
-    
+/* ================== АДАПТИВНОСТЬ ================== */
+
+/* Очень маленькие экраны (до 480px) */
+@media (max-width: 480px) {
     .container {
-        gap: 12px;
+        gap: 15px;
+        padding: 5px;
+        justify-content: flex-start;
+        padding-top: 20px;
+    }
+    
+    .header {
+        margin-bottom: 10px;
+    }
+    
+    .title {
+        font-size: 1.6rem;
+    }
+    
+    .subtitle {
+        font-size: 0.7rem;
+    }
+    
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
     }
     
     .sudoku-platform {
-        padding: 8px;
+        padding: 15px;
+    }
+    
+    .sudoku-grid {
+        width: 90vw;
+        height: 90vw;
+        max-width: 320px;
+        max-height: 320px;
+    }
+    
+    .sudoku-cell {
+        font-size: 1.2rem;
+    }
+    
+    .buttons-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .solve-btn, .clear-btn {
+        min-width: 200px;
+        max-width: 250px;
+        width: 100%;
+        padding: 12px 25px;
+        font-size: 0.95rem;
     }
     
     .virtual-keyboard {
+        display: flex;
         max-width: 280px;
-        gap: 6px;
+        gap: 8px;
     }
     
     .keyboard-row {
-        gap: 6px;
+        gap: 8px;
     }
     
     .number-btn {
-        padding: 10px 3px;
-        font-size: 1rem;
+        min-height: 40px;
+        min-width: 40px;
+        font-size: 1.1rem;
+        border-radius: 6px;
     }
-}
-
-/* Адаптивность для модального окна */
-@media (max-width: 480px) {
+    
     .modal-content {
-        min-width: 300px;
-        margin: 20px;
+        min-width: 280px;
+        margin: 15px;
     }
     
     .modal-header {
-        padding: 20px 20px 15px 20px;
+        padding: 15px 20px 10px 20px;
     }
     
     .modal-body {
-        padding: 25px 20px;
-        font-size: 1.1rem;
+        padding: 20px 15px;
+        font-size: 1rem;
     }
     
     .modal-footer {
         padding: 15px 20px 20px 20px;
     }
-    
-    .modal-title {
-        font-size: 1.1rem;
-    }
-    
-    .ok-btn {
-        padding: 10px 25px;
-        font-size: 0.9rem;
-        min-width: 100px;
-    }
 }
 
-@media (max-height: 700px) {
+/* Маленькие экраны (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
     .container {
-        gap: 10px;
+        gap: 20px;
     }
     
-    .title {
-        margin-bottom: 2px;
+    .sudoku-grid {
+        width: 85vw;
+        height: 85vw;
+        max-width: 400px;
+        max-height: 400px;
     }
     
-    .subtitle {
-        margin-bottom: 5px;
+    .sudoku-cell {
+        font-size: 1.4rem;
     }
     
-    .sudoku-platform {
-        margin-bottom: 5px;
-    }
-    
-    .signature {
-        margin-top: 8px;
-    }
-    
-    .modal-content {
-        transform: translate(-50%, -50%) scale(0.9);
+    .solve-btn, .clear-btn {
+        min-width: 140px;
+        max-width: 160px;
+        padding: 12px 20px;
     }
     
     .virtual-keyboard {
-        margin-top: 3px;
+        display: flex;
+        max-width: 300px;
+    }
+    
+    .number-btn {
+        min-height: 42px;
+        min-width: 42px;
     }
 }
 
-/* Скрываем виртуальную клавиатуру на десктопе */
-@media (min-width: 768px) {
-    .virtual-keyboard {
-        display: none;
+/* Планшеты (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .sudoku-grid {
+        width: 450px;
+        height: 450px;
+    }
+    
+    .solve-btn, .clear-btn {
+        min-width: 150px;
+        max-width: 170px;
+        padding: 14px 25px;
+    }
+    
+    @media (max-height: 700px) {
+        .virtual-keyboard {
+            display: flex;
+            max-width: 350px;
+        }
     }
 }
 
-/* Для мобильных устройств - скрываем стандартную клавиатуру */
+/* Десктопы (1024px и выше) */
+@media (min-width: 1024px) {
+    .sudoku-grid {
+        width: 450px;
+        height: 450px;
+    }
+    
+    .sudoku-cell {
+        font-size: 1.6rem;
+    }
+    
+    @media (max-width: 1200px) and (max-height: 700px) {
+        .virtual-keyboard {
+            display: flex;
+            max-width: 320px;
+        }
+    }
+}
+
+/* Для мобильных устройств */
 @media (max-width: 767px) {
     .sudoku-cell {
         caret-color: transparent;
     }
     
     .sudoku-cell:focus {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
         user-select: none;
+        outline: none;
     }
+}
+
+/* Вертикальная ориентация */
+@media (max-height: 600px) {
+    .container {
+        justify-content: flex-start;
+        padding-top: 20px;
+        gap: 15px;
+    }
+    
+    .sudoku-grid {
+        width: 70vw;
+        height: 70vw;
+        max-width: 300px;
+        max-height: 300px;
+    }
+    
+    .sudoku-cell {
+        font-size: 1.1rem;
+    }
+    
+    .buttons-row {
+        flex-direction: row;
+        gap: 15px;
+    }
+    
+    .solve-btn, .clear-btn {
+        min-width: 120px;
+        max-width: 140px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .virtual-keyboard {
+        display: flex;
+        margin-top: 5px;
+        max-width: 280px;
+    }
+    
+    .number-btn {
+        min-height: 35px;
+        min-width: 35px;
+        font-size: 1rem;
+    }
+}
+
+/* Виртуальная клавиатура при узком окне */
+@media (max-width: 1000px) {
+    .virtual-keyboard {
+        display: flex;
+    }
+}
+
+/* Анимация переключения темы */
+.theme-transition * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
