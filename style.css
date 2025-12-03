@@ -404,9 +404,9 @@ button:disabled {
 
 /* ================== ВИРТУАЛЬНАЯ КЛАВИАТУРА ================== */
 
-/* Виртуальная клавиатура - ВИДНА ВСЕГДА НА МОБИЛЬНЫХ */
+/* Виртуальная клавиатура - УПРАВЛЯЕТСЯ JS */
 .virtual-keyboard {
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 10px;
     width: 100%;
@@ -417,16 +417,21 @@ button:disabled {
     border-radius: 16px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 12px var(--shadow-color);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease, padding 0.3s ease;
+    pointer-events: none;
+    max-height: 0;
+    padding: 0 15px;
+    overflow: hidden;
 }
 
 .virtual-keyboard.show {
-    display: flex;
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    max-height: 500px;
+    padding: 15px;
 }
 
 .keyboard-row {
@@ -700,14 +705,7 @@ button:disabled {
         flex: 1;
     }
     
-    /* Виртуальная клавиатура ВСЕГДА ВИДНА НА ТЕЛЕФОНАХ */
-    .virtual-keyboard {
-        display: flex !important;
-        max-width: 90vw;
-        margin: 10px 0;
-        padding: 12px;
-    }
-    
+    /* Кнопки виртуальной клавиатуры на маленьких экранах */
     .keyboard-row {
         gap: 8px;
     }
@@ -771,13 +769,7 @@ button:disabled {
         padding: 12px 20px;
     }
     
-    /* Виртуальная клавиатура ВСЕГДА ВИДНА НА ПЛАНШЕТАХ */
-    .virtual-keyboard {
-        display: flex !important;
-        max-width: 400px;
-        margin: 15px 0;
-    }
-    
+    /* Кнопки виртуальной клавиатуры на планшетах */
     .number-btn {
         min-height: 55px;
         min-width: 55px;
@@ -804,13 +796,6 @@ button:disabled {
         max-width: 170px;
         padding: 14px 25px;
     }
-    
-    /* На больших планшетах тоже показываем клавиатуру */
-    .virtual-keyboard {
-        display: flex !important;
-        max-width: 400px;
-        margin: 15px 0;
-    }
 }
 
 /* Десктопы (1024px и выше) */
@@ -822,23 +807,6 @@ button:disabled {
     
     .sudoku-cell {
         font-size: 1.6rem;
-    }
-    
-    /* На десктопах клавиатура скрыта по умолчанию */
-    /* Но показываем если окно узкое */
-    @media (max-width: 1200px) {
-        .virtual-keyboard {
-            display: flex !important;
-            max-width: 400px;
-            margin: 15px 0;
-        }
-    }
-}
-
-/* Узкие окна (все устройства) */
-@media (max-width: 1000px) {
-    .virtual-keyboard {
-        display: flex !important;
     }
 }
 
@@ -873,13 +841,6 @@ button:disabled {
         max-width: 160px;
         padding: 10px 15px;
         font-size: 0.9rem;
-    }
-    
-    .virtual-keyboard {
-        display: flex !important;
-        margin: 10px 0;
-        max-width: 350px;
-        padding: 12px;
     }
     
     .number-btn {
@@ -926,11 +887,6 @@ button:disabled {
         height: 85vw;
         max-width: 280px;
         max-height: 280px;
-    }
-    
-    .virtual-keyboard {
-        margin: 8px 0;
-        padding: 10px;
     }
     
     .number-btn {
