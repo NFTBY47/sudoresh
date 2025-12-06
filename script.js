@@ -20,18 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTheme = localStorage.getItem('theme') || 'dark';
     let currentConflicts = new Map();
     let useServer = true;
-    let isMobileDevice = false;
+    let isMobile = window.innerWidth <= 767;
 
-    // Функция определения устройства
-    function detectDeviceType() {
-        // Проверяем ширину экрана И наличие тач-экрана
-        const width = window.innerWidth;
-        const hasTouchScreen = ('ontouchstart' in window) || 
-                              (navigator.maxTouchPoints > 0) || 
-                              (navigator.msMaxTouchPoints > 0);
-        
-        // Это мобильное устройство если: экран узкий И есть тач-экран
-        return (width <= 767) && hasTouchScreen;
+    // Функция определения мобильного устройства (упрощенная)
+    function checkIfMobile() {
+        // Простая проверка по ширине экрана
+        return window.innerWidth <= 767;
     }
 
     // Проверка доступности сервера
@@ -84,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('show');
     }
 
-    // Создание сетки (ВАЖНОЕ ИСПРАВЛЕНИЕ: правильные обработчики для мобильных)
+    // Создание сетки (ИСПРАВЛЕННАЯ ВЕРСИЯ)
     function createGrid() {
         grid.innerHTML = '';
         
@@ -105,38 +99,45 @@ document.addEventListener('DOMContentLoaded', function() {
             
             cell.appendChild(input);
             
-            // Обработчики для ВСЕХ устройств
-            // Важно: на мобильных должны работать и клики и касания
-            
-            // Обработчик клика (работает на ПК и мобильных)
-            cell.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleCellClick(cell);
-            });
-            
-            // Дополнительный обработчик касаний для мобильных (важно!)
-            cell.addEventListener('touchstart', (e) => {
+            // ВАЖНОЕ ИСПРАВЛЕНИЕ: Единый обработчик для всех устройств
+            const handleCellActivation = (e) => {
+                if (isSolving) return;
                 e.preventDefault();
                 e.stopPropagation();
                 handleCellClick(cell);
                 
                 // Визуальная обратная связь на мобильных
-                cell.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    cell.style.transform = '';
-                }, 150);
-            }, { passive: false });
+                if (isMobile) {
+                    cell.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        cell.style.transform = '';
+                    }, 150);
+                }
+            };
             
-            input.addEventListener('focus', () => handleCellClick(cell));
+            // Используем один тип события в зависимости от устройства
+            if (isMobile) {
+                // На мобильных только touchstart
+                cell.addEventListener('touchstart', handleCellActivation, { passive: false });
+                // Убираем клик на мобильных, чтобы не было двойного срабатывания
+                input.addEventListener('focus', () => handleCellClick(cell));
+            } else {
+                // На ПК клик
+                cell.addEventListener('click', handleCellActivation);
+                input.addEventListener('focus', () => handleCellClick(cell));
+            }
+            
             input.addEventListener('input', (e) => handleCellInput(e.target));
-            input.addEventListener('keydown', (e) => handleCellKeydown(e.target, e));
+            
+            if (!isMobile) {
+                input.addEventListener('keydown', (e) => handleCellKeydown(e.target, e));
+            }
             
             grid.appendChild(cell);
         }
     }
 
-    // Обработчик клика по ячейке (ИСПРАВЛЕННАЯ ВЕРСИЯ)
+    // Обработчик клика по ячейке
     function handleCellClick(cell) {
         if (isSolving) return;
         
@@ -148,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         activeCell = cell;
         
         // На ПК фокусируемся на input
-        if (!isMobileDevice) {
+        if (!isMobile) {
             const input = cell.querySelector('.cell-input');
             input.focus();
         }
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => checkConflicts(), 50);
     }
 
-    // Обработчик нажатия клавиш
+    // Обработчик нажатия клавиш (только для ПК)
     function handleCellKeydown(input, e) {
         if (isSolving) return;
         
@@ -227,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newIndex >= 0 && newIndex < 81) {
             const newCell = grid.children[newIndex];
             handleCellClick(newCell);
-            if (!isMobileDevice) newCell.querySelector('.cell-input').focus();
+            if (!isMobile) newCell.querySelector('.cell-input').focus();
         }
     }
 
@@ -344,8 +345,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             
-            // Обработчик click для всех устройств
-            newBtn.addEventListener('click', (e) => {
+            // Обработчик для всех устройств
+            const handleBtnPress = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 handleVirtualKeyPress(newBtn);
@@ -357,32 +358,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     newBtn.style.transform = '';
                     newBtn.style.opacity = '1';
                 }, 150);
-            });
+            };
             
-            // Дополнительные обработчики для мобильных устройств
-            if (isMobileDevice) {
-                newBtn.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleVirtualKeyPress(newBtn);
-                    newBtn.style.transform = 'scale(0.94)';
-                    newBtn.style.opacity = '0.9';
-                }, { passive: false });
-                
-                newBtn.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    newBtn.style.transform = '';
-                    newBtn.style.opacity = '1';
-                }, { passive: false });
-                
-                newBtn.addEventListener('touchcancel', (e) => {
-                    e.preventDefault();
-                    newBtn.style.transform = '';
-                    newBtn.style.opacity = '1';
-                }, { passive: false });
-                
-                newBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+            // Используем разные события для разных устройств
+            if (isMobile) {
+                // На мобильных только touchstart
+                newBtn.addEventListener('touchstart', handleBtnPress, { passive: false });
+            } else {
+                // На ПК click
+                newBtn.addEventListener('click', handleBtnPress);
             }
         });
     }
@@ -420,10 +404,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обновление видимости клавиатуры
     function updateKeyboardVisibility() {
-        isMobileDevice = detectDeviceType();
+        isMobile = checkIfMobile();
         
-        if (isMobileDevice) {
-            // Мобильное устройство: показываем нашу клавиатуру
+        if (isMobile) {
+            // Мобильные устройства: показываем виртуальную клавиатуру
             virtualKeyboard.classList.add('show');
             
             // Блокируем системную клавиатуру
@@ -431,22 +415,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 input.readOnly = true;
                 input.inputMode = 'none';
                 
-                // Предотвращаем появление системной клавиатуры при фокусе
+                // Предотвращаем фокус на мобильных
                 input.addEventListener('focus', (e) => {
                     e.preventDefault();
                     e.target.blur();
                 });
-                
-                // Предотвращаем длительное нажатие
-                input.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, { passive: false });
             });
             
             setTimeout(() => setupVirtualKeyboard(), 100);
         } else {
-            // ПК: показываем виртуальную клавиатуру на узких экранах
+            // ПК: виртуальная клавиатура только на узких экранах
             const width = window.innerWidth;
             if (width <= 767) {
                 virtualKeyboard.classList.add('show');
@@ -458,12 +436,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.cell-input').forEach(input => {
                 input.readOnly = false;
                 input.inputMode = 'numeric';
-                
-                // Убираем обработчики блокировки фокуса
-                input.removeEventListener('focus', (e) => {
-                    e.preventDefault();
-                    e.target.blur();
-                });
             });
             
             setTimeout(() => setupVirtualKeyboard(), 100);
@@ -715,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('🚀 SUDO.RESH запущен');
         console.log(`🔧 Режим: ${useServer ? 'Серверный' : 'Клиентский'}`);
-        console.log(`📱 Устройство: ${isMobileDevice ? 'Мобильное' : 'Десктоп'}`);
+        console.log(`📱 Устройство: ${isMobile ? 'Мобильное' : 'Десктоп'}`);
     }
 
     // Запуск
