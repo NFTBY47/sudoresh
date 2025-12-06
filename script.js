@@ -22,9 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let useServer = true;
     let isMobile = window.innerWidth <= 767;
 
-    // Функция определения мобильного устройства (упрощенная)
+    // Функция определения мобильного устройства
     function checkIfMobile() {
-        // Простая проверка по ширине экрана
         return window.innerWidth <= 767;
     }
 
@@ -78,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('show');
     }
 
-    // Создание сетки (ИСПРАВЛЕННАЯ ВЕРСИЯ)
+    // Создание сетки (УПРОЩЕННАЯ И ИСПРАВЛЕННАЯ ВЕРСИЯ)
     function createGrid() {
         grid.innerHTML = '';
         
@@ -99,48 +98,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             cell.appendChild(input);
             
-            // ВАЖНОЕ ИСПРАВЛЕНИЕ: Единый обработчик для всех устройств
-            const handleCellActivation = (e) => {
+            // УНИВЕРСАЛЬНЫЙ ОБРАБОТЧИК ДЛЯ ВСЕХ УСТРОЙСТВ
+            const handleCellClick = () => {
                 if (isSolving) return;
-                e.preventDefault();
-                e.stopPropagation();
-                handleCellClick(cell);
-                
-                // Визуальная обратная связь на мобильных
-                if (isMobile) {
-                    cell.style.transform = 'scale(0.98)';
-                    setTimeout(() => {
-                        cell.style.transform = '';
-                    }, 150);
-                }
+                setActiveCell(cell);
             };
             
-            // Используем один тип события в зависимости от устройства
+            // Вешаем обработчик на саму ячейку
+            cell.addEventListener('click', handleCellClick);
+            
+            // Для мобильных также вешаем touchstart (но без preventDefault)
             if (isMobile) {
-                // На мобильных только touchstart
-                cell.addEventListener('touchstart', handleCellActivation, { passive: false });
-                // Убираем клик на мобильных, чтобы не было двойного срабатывания
-                input.addEventListener('focus', () => handleCellClick(cell));
-            } else {
-                // На ПК клик
-                cell.addEventListener('click', handleCellActivation);
-                input.addEventListener('focus', () => handleCellClick(cell));
+                cell.addEventListener('touchstart', (e) => {
+                    if (isSolving) return;
+                    // Легкая вибрация на мобильных (если поддерживается)
+                    if (navigator.vibrate) navigator.vibrate(10);
+                    setActiveCell(cell);
+                    e.stopPropagation();
+                });
             }
             
+            // Обработчик ввода
             input.addEventListener('input', (e) => handleCellInput(e.target));
             
-            if (!isMobile) {
-                input.addEventListener('keydown', (e) => handleCellKeydown(e.target, e));
-            }
+            // Обработчик клавиш (для всех устройств)
+            input.addEventListener('keydown', (e) => handleCellKeydown(e.target, e));
             
             grid.appendChild(cell);
         }
     }
 
-    // Обработчик клика по ячейке
-    function handleCellClick(cell) {
-        if (isSolving) return;
-        
+    // Установка активной ячейки
+    function setActiveCell(cell) {
         document.querySelectorAll('.sudoku-cell').forEach(c => {
             c.classList.remove('active');
         });
@@ -148,10 +137,15 @@ document.addEventListener('DOMContentLoaded', function() {
         cell.classList.add('active');
         activeCell = cell;
         
-        // На ПК фокусируемся на input
-        if (!isMobile) {
-            const input = cell.querySelector('.cell-input');
-            input.focus();
+        // Фокусируемся на input
+        const input = cell.querySelector('.cell-input');
+        input.focus();
+        
+        // На мобильных скрываем системную клавиатуру после фокуса
+        if (isMobile) {
+            setTimeout(() => {
+                input.blur();
+            }, 0);
         }
     }
 
@@ -169,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => checkConflicts(), 50);
     }
 
-    // Обработчик нажатия клавиш (только для ПК)
+    // Обработчик нажатия клавиш (для всех устройств)
     function handleCellKeydown(input, e) {
         if (isSolving) return;
         
@@ -227,8 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (newIndex >= 0 && newIndex < 81) {
             const newCell = grid.children[newIndex];
-            handleCellClick(newCell);
-            if (!isMobile) newCell.querySelector('.cell-input').focus();
+            setActiveCell(newCell);
         }
     }
 
@@ -338,36 +331,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Настройка виртуальной клавиатуры
     function setupVirtualKeyboard() {
-        const buttons = virtualKeyboard.querySelectorAll('.number-btn, .clear-cell-btn');
+        virtualKeyboard.innerHTML = '';
         
-        buttons.forEach(btn => {
-            // Клонируем кнопку для удаления старых обработчиков
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
+        // Создаем две строки кнопок
+        const rows = [
+            [1, 2, 3, 4, 5],
+            [6, 7, 8, 9, 0]
+        ];
+        
+        rows.forEach(numbers => {
+            const row = document.createElement('div');
+            row.className = 'keyboard-row';
             
-            // Обработчик для всех устройств
-            const handleBtnPress = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleVirtualKeyPress(newBtn);
+            numbers.forEach(number => {
+                const btn = document.createElement('button');
+                btn.className = number === 0 ? 'clear-cell-btn' : 'number-btn';
+                btn.textContent = number === 0 ? '⌫' : number;
+                btn.dataset.number = number;
                 
-                // Визуальная обратная связь
-                newBtn.style.transform = 'scale(0.94)';
-                newBtn.style.opacity = '0.9';
-                setTimeout(() => {
-                    newBtn.style.transform = '';
-                    newBtn.style.opacity = '1';
-                }, 150);
-            };
+                // Обработчик для всех устройств
+                const handleBtnClick = () => {
+                    if (isSolving) return;
+                    
+                    // Визуальная обратная связь
+                    btn.style.transform = 'scale(0.94)';
+                    btn.style.opacity = '0.9';
+                    setTimeout(() => {
+                        btn.style.transform = '';
+                        btn.style.opacity = '1';
+                    }, 150);
+                    
+                    handleVirtualKeyPress(btn);
+                };
+                
+                btn.addEventListener('click', handleBtnClick);
+                
+                // Для мобильных touchstart (без preventDefault)
+                if (isMobile) {
+                    btn.addEventListener('touchstart', (e) => {
+                        e.stopPropagation();
+                        handleBtnClick();
+                    });
+                }
+                
+                row.appendChild(btn);
+            });
             
-            // Используем разные события для разных устройств
-            if (isMobile) {
-                // На мобильных только touchstart
-                newBtn.addEventListener('touchstart', handleBtnPress, { passive: false });
-            } else {
-                // На ПК click
-                newBtn.addEventListener('click', handleBtnPress);
-            }
+            virtualKeyboard.appendChild(row);
         });
     }
 
@@ -378,28 +388,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const number = btn.dataset.number;
         
         if (!activeCell) {
+            // Если нет активной ячейки, выбираем первую
             const firstCell = grid.children[0];
             if (firstCell) {
-                handleCellClick(firstCell);
+                setActiveCell(firstCell);
+            } else {
+                return;
             }
         }
         
-        if (activeCell) {
-            const input = activeCell.querySelector('.cell-input');
-            
-            if (number === '0') {
-                input.value = '';
-                activeCell.classList.remove('user-input', 'solved', 'solved-animation');
-            } else {
-                input.value = number;
-                activeCell.classList.add('user-input');
-                activeCell.classList.remove('solved', 'solved-animation');
-            }
-            
-            setTimeout(() => checkConflicts(), 50);
+        const input = activeCell.querySelector('.cell-input');
+        
+        if (number === '0') {
+            input.value = '';
+            activeCell.classList.remove('user-input', 'solved', 'solved-animation');
         } else {
-            showModal('Сначала выберите ячейку', 'Подсказка');
+            input.value = number;
+            activeCell.classList.add('user-input');
+            activeCell.classList.remove('solved', 'solved-animation');
         }
+        
+        setTimeout(() => checkConflicts(), 50);
     }
 
     // Обновление видимости клавиатуры
@@ -407,39 +416,25 @@ document.addEventListener('DOMContentLoaded', function() {
         isMobile = checkIfMobile();
         
         if (isMobile) {
-            // Мобильные устройства: показываем виртуальную клавиатуру
+            // На мобильных показываем виртуальную клавиатуру
             virtualKeyboard.classList.add('show');
             
-            // Блокируем системную клавиатуру
+            // Делаем input readOnly, чтобы не появлялась системная клавиатура
             document.querySelectorAll('.cell-input').forEach(input => {
                 input.readOnly = true;
-                input.inputMode = 'none';
-                
-                // Предотвращаем фокус на мобильных
-                input.addEventListener('focus', (e) => {
-                    e.preventDefault();
-                    e.target.blur();
-                });
             });
-            
-            setTimeout(() => setupVirtualKeyboard(), 100);
         } else {
-            // ПК: виртуальная клавиатура только на узких экранах
-            const width = window.innerWidth;
-            if (width <= 767) {
-                virtualKeyboard.classList.add('show');
-            } else {
-                virtualKeyboard.classList.remove('show');
-            }
+            // На ПК скрываем виртуальную клавиатуру
+            virtualKeyboard.classList.remove('show');
             
-            // Разрешаем физическую клавиатуру
+            // Разрешаем ввод с клавиатуры
             document.querySelectorAll('.cell-input').forEach(input => {
                 input.readOnly = false;
-                input.inputMode = 'numeric';
             });
-            
-            setTimeout(() => setupVirtualKeyboard(), 100);
         }
+        
+        // Пересоздаем клавиатуру с новыми обработчиками
+        setupVirtualKeyboard();
     }
 
     // Решение судоку
@@ -632,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentConflicts.clear();
         
         setTimeout(() => {
-            if (grid.children[0]) handleCellClick(grid.children[0]);
+            if (grid.children[0]) setActiveCell(grid.children[0]);
         }, 50);
     }
 
@@ -682,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function() {
         await checkServerAvailability();
         
         setTimeout(() => {
-            if (grid.children[0]) handleCellClick(grid.children[0]);
+            if (grid.children[0]) setActiveCell(grid.children[0]);
         }, 100);
         
         console.log('🚀 SUDO.RESH запущен');
