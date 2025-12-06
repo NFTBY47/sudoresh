@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.remove('show');
     }
 
-    // Создание сетки
+    // Создание сетки (ВАЖНОЕ ИСПРАВЛЕНИЕ: правильные обработчики для мобильных)
     function createGrid() {
         grid.innerHTML = '';
         
@@ -105,19 +105,38 @@ document.addEventListener('DOMContentLoaded', function() {
             
             cell.appendChild(input);
             
-            // Обработчики клика для всех устройств
-            cell.addEventListener('click', () => handleCellClick(cell));
+            // Обработчики для ВСЕХ устройств
+            // Важно: на мобильных должны работать и клики и касания
+            
+            // Обработчик клика (работает на ПК и мобильных)
+            cell.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCellClick(cell);
+            });
+            
+            // Дополнительный обработчик касаний для мобильных (важно!)
+            cell.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCellClick(cell);
+                
+                // Визуальная обратная связь на мобильных
+                cell.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    cell.style.transform = '';
+                }, 150);
+            }, { passive: false });
+            
             input.addEventListener('focus', () => handleCellClick(cell));
             input.addEventListener('input', (e) => handleCellInput(e.target));
-            
-            // Обработчик клавиш для всех устройств
             input.addEventListener('keydown', (e) => handleCellKeydown(e.target, e));
             
             grid.appendChild(cell);
         }
     }
 
-    // Обработчик клика по ячейке
+    // Обработчик клика по ячейке (ИСПРАВЛЕННАЯ ВЕРСИЯ)
     function handleCellClick(cell) {
         if (isSolving) return;
         
@@ -339,6 +358,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     newBtn.style.opacity = '1';
                 }, 150);
             });
+            
+            // Дополнительные обработчики для мобильных устройств
+            if (isMobileDevice) {
+                newBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleVirtualKeyPress(newBtn);
+                    newBtn.style.transform = 'scale(0.94)';
+                    newBtn.style.opacity = '0.9';
+                }, { passive: false });
+                
+                newBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    newBtn.style.transform = '';
+                    newBtn.style.opacity = '1';
+                }, { passive: false });
+                
+                newBtn.addEventListener('touchcancel', (e) => {
+                    e.preventDefault();
+                    newBtn.style.transform = '';
+                    newBtn.style.opacity = '1';
+                }, { passive: false });
+                
+                newBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+            }
         });
     }
 
@@ -385,16 +430,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.cell-input').forEach(input => {
                 input.readOnly = true;
                 input.inputMode = 'none';
-                // Предотвращаем появление системной клавиатуры
+                
+                // Предотвращаем появление системной клавиатуры при фокусе
+                input.addEventListener('focus', (e) => {
+                    e.preventDefault();
+                    e.target.blur();
+                });
+                
+                // Предотвращаем длительное нажатие
                 input.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                 }, { passive: false });
-                
-                input.addEventListener('focus', (e) => {
-                    e.preventDefault();
-                    e.target.blur(); // Убираем фокус чтобы не появлялась системная клавиатура
-                });
             });
             
             setTimeout(() => setupVirtualKeyboard(), 100);
@@ -411,9 +458,14 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.cell-input').forEach(input => {
                 input.readOnly = false;
                 input.inputMode = 'numeric';
+                
+                // Убираем обработчики блокировки фокуса
+                input.removeEventListener('focus', (e) => {
+                    e.preventDefault();
+                    e.target.blur();
+                });
             });
             
-            // Настраиваем клавиатуру для ПК
             setTimeout(() => setupVirtualKeyboard(), 100);
         }
     }
