@@ -1,2 +1,2 @@
 # sudoresh-frontend
-Sudoku solver frontend
+Онлайн решатель судоку
