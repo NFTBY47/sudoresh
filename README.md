@@ -1,2 +1,2 @@
-# sudoresh-frontend
-Онлайн решатель судоку
+# sudoresh
+<link>https://sudoresh.ru/</link>
